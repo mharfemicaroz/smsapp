@@ -86,12 +86,34 @@
               <span class="menu-arrow"></span
             ></a>
             <ul>
-              <li><a href="#">Program List</a></li>
-              <li><a href="#">Program Add</a></li>
-              <li><a href="#">Subjects Add</a></li>
-              <li><a href="#">Subjects List</a></li>
-              <li><a href="#">Prospectus List</a></li>
-              <li><a href="#">Prospectus Add</a></li>
+              <li>
+                <router-link
+                  to="/index/add-program"
+                  @click="navigateTo('/index/add-program')"
+                  :class="getActiveMenu('/index/add-program')"
+                >
+                  Program
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/index/add-curriculum"
+                  @click="navigateTo('/index/add-curriculum')"
+                  :class="getActiveMenu('/index/add-curriculum')"
+                >
+                  Curriculum
+                </router-link>
+              </li>
+              <li>
+                <router-link
+                  to="/index/add-subject"
+                  @click="navigateTo('/index/add-subject')"
+                  :class="getActiveMenu('/index/add-subject')"
+                >
+                  Subject
+                </router-link>
+              </li>
+              <li><a href="#">Prospectus</a></li>
             </ul>
           </li>
           <li class="submenu">

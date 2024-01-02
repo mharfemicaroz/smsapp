@@ -627,7 +627,7 @@
 </template>
 <script>
 import ToasterComponent from "../common/ToasterComponent.vue";
-import { studentApi } from "@/services/studentServices";
+import { studentApi } from "@/services/mainServices";
 export default {
   components: {
     ToasterComponent,

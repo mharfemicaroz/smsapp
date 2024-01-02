@@ -3,31 +3,36 @@ from django.db import models
 class Program(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    desc = models.CharField(max_length=1024, null=True, blank=True)
+    major = models.CharField(max_length=100, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
 class Subjects(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    desc = models.CharField(max_length=100)
     units = models.DecimalField(
         max_digits=10, decimal_places=2, default=0)
-    prereq = models.CharField(max_length=255)
+    subtype = models.CharField(max_length=100)
+    prereq = models.CharField(max_length=255, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
 class Curriculum(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    desc = models.CharField(max_length=100, null=True, blank=True)
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
 
 class Prospectus(models.Model):
     id = models.AutoField(primary_key=True)
     subject = models.ForeignKey(Subjects, on_delete=models.CASCADE)
-    effectivity = models.CharField(max_length=100)
-
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    semester = models.CharField(max_length=100)
+    yrlevel = models.CharField(max_length=100)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 

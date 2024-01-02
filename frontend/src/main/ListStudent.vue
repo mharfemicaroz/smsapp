@@ -78,7 +78,7 @@
 <script>
 import TableComponent from "../common/TableComponent.vue";
 import ToasterComponent from "../common/ToasterComponent.vue";
-import { studentApi } from "@/services/studentServices";
+import { studentApi } from "@/services/mainServices";
 export default {
   components: {
     TableComponent,

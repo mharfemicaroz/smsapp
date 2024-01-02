@@ -37,6 +37,23 @@ const fetchAllItems = async (url) => {
     return makeRequest("get", url);
 };
 
+const fetchAllDistinctItems = async (url, uniqueField) => {
+    const items = await makeRequest("get", url);
+    
+    if (uniqueField) {
+        const uniqueItems = new Map();
+        items.forEach(item => {
+            const key = item[uniqueField];
+            if (!uniqueItems.has(key)) {
+                uniqueItems.set(key, item);
+            }
+        });
+        return Array.from(uniqueItems.values());
+    }
+
+    return items;
+};
+
 const fetchItem = async (url, id) => {
     return makeRequest("get", `${url}${id}`);
 };
@@ -66,6 +83,7 @@ export const api = (main, resource) => {
     const URL = `${main}/${resource}/`;
     return {
         fetchAll: async () => fetchAllItems(URL),
+        fetchAllDistinct: async (uniqueField) => fetchAllDistinctItems(URL, uniqueField),
         fetchOne: async (id) => fetchItem(URL, id),
         add: async (data) => addItem(URL, data),
         edit: async (id, data) => editItem(URL, id, data),

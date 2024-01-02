@@ -120,12 +120,13 @@
             <td
               v-for="(header, index) in mainHeaders"
               :key="index"
-              style="
-                word-wrap: break-word;
-                white-space: normal;
-                overflow: hidden;
-                max-width: 100%;
-              "
+              :style="{
+                wordWrap: 'break-word',
+                whiteSpace: 'normal',
+                overflow: 'hidden',
+                maxWidth: '100%',
+                textAlign: header.field === 'action' ? 'right' : 'left',
+              }"
             >
               <template v-if="header.field === 'checkbox' && selectable">
                 <input

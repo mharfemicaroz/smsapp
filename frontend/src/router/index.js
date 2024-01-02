@@ -45,6 +45,21 @@ const router = createRouter({
           name: "All Students",
           component: () => import('../main/ListStudent.vue'),
         },
+        {
+          path: "add-program",
+          name: "Add Program",
+          component: () => import('../main/AddProgram.vue'),
+        },
+        {
+          path: "add-curriculum",
+          name: "Add Curriculum",
+          component: () => import('../main/AddCurriculum.vue'),
+        },
+        {
+          path: "add-subject",
+          name: "Add Subject",
+          component: () => import('../main/AddSubject.vue'),
+        },
       ],
       meta: {
         requiresAuth: true,

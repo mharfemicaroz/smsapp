@@ -1,114 +1,29 @@
-from django.views.decorators.csrf import csrf_exempt
-from django.http.response import JsonResponse
-from .models import *
-from .serializers import *
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from django.core.files.storage import default_storage
+from .controllers import *
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@csrf_exempt
-def filter_model(request, o, s):
-    if request.method == 'POST':
-        data = request.data
-        if isinstance(data, list):
-            # multiple entries
-            queryset = o.objects.all()
-            for item in data:
-                column_name = item.get('columnName')
-                column_key = item.get('columnKey')
-                if column_name and column_key:
-                    queryset = queryset.filter(**{column_name: column_key})
-                else:
-                    return JsonResponse({'error': 'Invalid input data.'}, status=400)
-            serializer = s(queryset, many=True)  # Replace YourSerializerClass with the actual serializer class
-            response_data = serializer.data
-        else:
-            # single entry
-            column_name = data.get('columnName')
-            column_key = data.get('columnKey')
-            if column_name and column_key:
-                queryset = o.objects.filter(**{column_name: column_key})
-                serializer = s(queryset, many=True)  # Replace YourSerializerClass with the actual serializer class
-                response_data = serializer.data
-            else:
-                return JsonResponse({'error': 'Invalid input data.'}, status=400)
-        return JsonResponse(response_data, safe=False)
-    else:
-        return JsonResponse({'error': 'Invalid request method.'}, status=400)
+# Define a list of models
+models = [Student, Program, Subjects, Curriculum, Prospectus]
 
+def create_endpoints_for_model(model):
+    # Dynamically getting the serializer class based on the model name
+    serializer_class = globals()[f"{model.__name__}Serializer"]
 
+    @csrf_exempt
+    def list_view(request, pk=None):
+        return generic_list(request, model, serializer_class, pk)
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-@csrf_exempt
-def generic_list(request, o, s, pk=None):
-    if request.method == 'GET':
-        if pk is not None:
-            try:
-                dt = o.objects.get(id=pk)
-            except o.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            ds = s(dt)
-            return Response(ds.data)
-        else:
-            dt = o.objects.all()
+    @csrf_exempt
+    def filter_view(request):
+        return filter_model(request, model, serializer_class)
 
-            ds = s(dt, many=True)
-            return Response(ds.data)
+    @csrf_exempt
+    def delete_view(request, pk=None):
+        return generic_delete(request, model, pk)
 
-    elif request.method == 'POST':
-        ds = s(data=request.data)
-        if ds.is_valid():
-            ds.save()
-            return Response(ds.data, status=status.HTTP_201_CREATED)
-        return Response(ds.errors, status=status.HTTP_400_BAD_REQUEST)
+    return list_view, filter_view, delete_view
 
-    elif request.method == 'PUT':
-        try:
-            dt = o.objects.get(id=pk)
-        except o.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        ds = s(dt, data=request.data)
-        if ds.is_valid():
-            ds.save()
-            return Response(ds.data)
-        return Response(ds.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-@csrf_exempt
-def generic_delete(request, o, pk=None):
-    if request.method == 'GET':
-        if pk is not None:
-            try:
-                dt = o.objects.get(id=pk)
-            except o.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-            dt.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated])
-@csrf_exempt
-def SaveFile(request):
-    file = request.FILES['file']
-    file_name = default_storage.save(file.name, file)
-    return JsonResponse(file_name, safe=False)
-
-@csrf_exempt
-def Student_list(request, pk=None):
-    return generic_list(request, Student, StudentSerializer, pk)
-
-@csrf_exempt
-def Student_filter(request):
-    return filter_model(request, Student, StudentSerializer)
-
-@csrf_exempt
-def Student_delete(request, pk=None):
-    return generic_delete(request, Student, pk)
+# Generate endpoints for each model
+for model in models:
+    list_view, filter_view, delete_view = create_endpoints_for_model(model)
+    globals()[f"{model.__name__}_list"] = list_view
+    globals()[f"{model.__name__}_filter"] = filter_view
+    globals()[f"{model.__name__}_delete"] = delete_view
